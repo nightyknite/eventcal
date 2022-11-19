@@ -7,9 +7,9 @@ import listPlugin from '@fullcalendar/list';
 import dayjs from 'dayjs'; 
 import tippy from 'tippy.js';
 
-document.addEventListener('DOMContentLoaded', () => {
+const CONNPASS_API_URL = 'https://connpass.com/api/v1/event/';
 
-const connpass = (data: { events: any[]; }) => {
+const getEventFormat = (data: { events: any[]; }) => {
   return data.events.map(item => {
     return {
       title: `${item.title} (${item.limit})`,
@@ -28,54 +28,59 @@ const connpass = (data: { events: any[]; }) => {
       backgroundColor: '#a82400',
       borderColor: '#a82400',
       textColor: 'white'
-    }    
-  });
+  }    
+});
 }
 
-const setCalendar = (startStr: any, callback: any) => {
-    let events: any[] = [];
-    let dt = new Date(startStr);
-    
-    dt.setDate(dt.getDate() + 7);
+const setCalendarEvents = (startStr: any, callback: any) => {
+  let events: any[] = [];
+  let dt = new Date(startStr);
+  
+  dt.setDate(dt.getDate() + 7);
 
-    const ym = dt.getFullYear() + ("00" + (dt.getMonth()+1)).slice(-2);
-    const item = sessionStorage.getItem('event' + ym);
-    
-    if (item !== null) {
-      events = JSON.parse(item);
-      const start = document.getElementById("start");
-      if (start!.value.length > 0) {
-        events = events.filter(event => {return (dayjs(event.start).format("HH:mm") >= start.value);});
-      }
-      const limit = document.getElementById("limit");
-      if (limit!.value.length > 0) {
-        events = events.filter(event => {return (Number(event.limit) >= limit.value);});
-      }
-      const keyword = document.getElementById("keyword");
-      if (keyword!.value.length > 0) {
-        events = events.filter(event => {return (event.description.indexOf(keyword.value) > 0);});
-      }
-      callback(events);
-      return;
+  const ym = dt.getFullYear() + ("00" + (dt.getMonth()+1)).slice(-2);
+  const item = sessionStorage.getItem('event' + ym);
+  
+  if (item !== null) {
+    events = JSON.parse(item);
+    const start = document.getElementById("start");
+    if (start!.value.length > 0) {
+      events = events.filter(event => {return (dayjs(event.start).format("HH:mm") >= start.value);});
     }
-    
-    (async () => {
-        let data = [];
-        let event = [];
-        const results = [];
-        const conpassTimes = 10;
-        for (let i = 0; i < conpassTimes; i++) {
-            results.push((async () => {
-            data = await $.ajax({url: 'https://connpass.com/api/v1/event/?count=100&ym=' + ym + '&start=' + (i * 100 + 1), dataType: 'jsonp'});
-            event = connpass(data);
-            events = events.concat(event);
-            })());
-        }
-        await Promise.all(results);
-        sessionStorage.setItem('event' + ym, JSON.stringify(events));
-        callback(events);
-    })();
+    const limit = document.getElementById("limit");
+    if (limit!.value.length > 0) {
+      events = events.filter(event => {return (Number(event.limit) >= limit.value);});
+    }
+    const keyword = document.getElementById("keyword");
+    if (keyword!.value.length > 0) {
+      events = events.filter(event => {return (event.description.indexOf(keyword.value) > 0);});
+    }
+    callback(events);
+    return;  
   }
+
+  (async () => {
+      let data = [];
+      let event = [];
+      const results = []; 
+      let maxPage = 10;
+      let pageNo = 0;
+      while (pageNo < maxPage) {
+        pageNo += 1;
+        results.push((async () => {
+          data = await $.ajax({url: CONNPASS_API_URL + '?count=100&ym=' + ym + '&start=' + (pageNo * 100 + 1), dataType: 'jsonp'});
+          event = getEventFormat(data);
+          events = events.concat(event);
+          maxPage = Math.ceil(Number(data.results_available) / Number(data.results_returned));
+        })());
+      }
+      await Promise.all(results);
+      sessionStorage.setItem('event' + ym, JSON.stringify(events));
+      callback(events);
+  })();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
   
   const calendarEl: HTMLElement = document.getElementById('calendar')!;
   const calendar = new Calendar(calendarEl, {
@@ -92,7 +97,7 @@ const setCalendar = (startStr: any, callback: any) => {
       list: 'リスト'
     },
     locale: 'ja',
-    events: (info: any, success: any) => setCalendar(info.start.valueOf(), success),
+    events: (info: any, success: any) => setCalendarEvents(info.start.valueOf(), success),
     eventClick: (info: any) => {
       info.jsEvent.preventDefault();
       if (info.event.url) {
@@ -101,13 +106,15 @@ const setCalendar = (startStr: any, callback: any) => {
     },
     eventDidMount: (e: any) => {
       tippy(e.el, {
-        content: e.event.extendedProps.description,
+        content: `tite:${e.event.title} <br> ${e.event.extendedProps.description}`,
         allowHTML: true,
       });
     }
   });
 
   calendar.render();
+
+
 
   document.getElementById("search")!.addEventListener('click', ()=> {
       calendar.refetchEvents();
