@@ -7,23 +7,22 @@
   	<meta content="width=device-width, initial-scale=1" name="viewport">
     <title>Event Calendar</title>
   	<link rel="shortcut icon" href="favicon.ico" />
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/core/main.min.css" rel="stylesheet" />
-  	<link href='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/daygrid/main.min.css' rel='stylesheet' />
-    <link href='https://cdnjs.cloudflare.com/ajax/libs/fullcalendar/4.2.0/list/main.min.css' rel='stylesheet' />
-    <link href='https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css' rel='stylesheet' >
     <link rel="stylesheet" href="scss/styles.scss">
     <script src="scripts/index.ts" type="module"></script>
   </head>
   <body>
-    <progress id="eventloading" value="0" max="0" style="display:none" >0</progress>
-    <nav class="navbar navbar-light bg-light" >
-      <a class="navbar-brand">Event Calendar</a>
-      <form class="form-inline">
-        <input id="start" class="form-control mr-sm-2" type="text" placeholder="00:00" style="width:5em" maxlength="5" >
-        <input id="limit" class="form-control mr-sm-2" type="text" placeholder="limit" style="width:4em" maxlength="4" >
-        <input id="keyword" class="form-control mr-sm-2" type="search" placeholder="keyword" >
-        <button id="search" class="btn btn-outline-success my-2 my-sm-0" type="button" >Search</button>
-      </form>
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+        <a class="navbar-brand" href="#">Event Calendar</a>
+        <div class="collapse navbar-collapse" >
+          <form class="d-flex  mr-autor">
+            <input id="start" class="form-control me-sm-2" type="text" placeholder="00:00" style="width:5em" maxlength="5" >
+            <input id="limit" class="form-control me-sm-2" type="text" placeholder="limit" style="width:4em" maxlength="4" >
+            <input id="keyword" class="form-control me-sm-2" type="search" placeholder="keyword" >
+            <button id="search" class="btn btn-outline-success my-2 my-sm-0" type="button" >Search</button>    
+          </form>
+        </div>
+      </div>
     </nav>
     <div id='calendar'></div>
   </body>

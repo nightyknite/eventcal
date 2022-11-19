@@ -24,7 +24,8 @@
     "bootstrap-scss": "^5.2.2",
     "dayjs": "^1.11.6",
     "fullcalendar": "^5.11.3",
-    "jquery": "^3.6.1"
+    "jquery": "^3.6.1",
+    "tippy.js": "^6.3.7"
   },
   "volta": {
     "node": "18.12.1"

@@ -1,3 +1,12 @@
+
+
 progress::-webkit-progress-value {background-color: #a82400;}
 #progressAtnd::-webkit-progress-value {background-color: #ebac2b;}
 #progressDoorkeeper::-webkit-progress-value {background-color: #0f4ff4;}      
+
+@import "./node_modules/bootstrap/scss/bootstrap";
+@import "./node_modules/@fullcalendar/common/main.min";
+@import "./node_modules/@fullcalendar/list/main.min";
+@import "./node_modules/@fullcalendar/daygrid/main.min";
+@import "./node_modules/@fullcalendar/timegrid/main.min";
+@import "./node_modules/tippy.js/dist/tippy";
