@@ -70,14 +70,28 @@ const setCalendarEvents = (startStr: any, callback: any) => {
       const PAGING = 100;
       let maxPage = 10;
       let pageNo = 0;
+      
+
+      const loding: HTMLInputElement =<HTMLInputElement>document.getElementById('loading');
+
+      const apiUrl = CONNPASS_API_URL + '?count=' + PAGING + '&ym=' + ym + '&start=' + (pageNo * PAGING + 1);
+      data = await $.ajax({url: apiUrl, dataType: 'jsonp'});
+      event = getEventFormat(data);
+      events = events.concat(event);
+      maxPage = Math.ceil(Number(data.results_available) / Number(data.results_returned));
+      pageNo += 1;
+      loding.dataset.num = '1';
+      loding.style.width = `${(Number(loding.dataset.num) / maxPage) * 100}%`;
       while (pageNo < maxPage) {
-        pageNo += 1;
         results.push((async () => {
-          data = await $.ajax({url: CONNPASS_API_URL + '?count=' + PAGING + '&ym=' + ym + '&start=' + (pageNo * PAGING + 1), dataType: 'jsonp'});
+          const apiUrl = CONNPASS_API_URL + '?count=' + PAGING + '&ym=' + ym + '&start=' + (pageNo * PAGING + 1);
+          data = await $.ajax({url: apiUrl, dataType: 'jsonp'});
           event = getEventFormat(data);
           events = events.concat(event);
-          maxPage = Math.ceil(Number(data.results_available) / Number(data.results_returned));
+          loding.dataset.num = `${Number(loding.dataset.num) + 1}`;
+          loding.style.width = `${(Number(loding.dataset.num) / maxPage) * 100}%`;
         })());
+        pageNo += 1;
       }
       await Promise.all(results);
       sessionStorage.setItem('event' + ym, JSON.stringify(events));
