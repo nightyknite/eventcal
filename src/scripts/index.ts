@@ -6,9 +6,44 @@ import dayjs from 'dayjs';
 import $ from 'jquery';
 import tippy from 'tippy.js';
 
+interface ConnpassResponse {
+  results_available: any,
+  results_returned: any,
+  events: ConpassEvents[];
+}
+
+interface ConpassEvents {
+  title: string;
+  limit: string;
+  started_at: string;
+  ended_at: string;
+  event_url: string;
+  accepted: string;
+  waiting: string;
+  event_type: string;
+  hash_tag: string;
+  place: string;
+  address: string;
+  catch: string;
+  description: string;
+}
+
+interface CalendarEvent {
+  title: string;
+  start: string;
+  end: string;
+  url: string;
+  limit: string;
+  description: string;
+  backgroundColor: string;
+  borderColor: string;
+  textColor: string;
+}
+
+
 const CONNPASS_API_URL = 'https://connpass.com/api/v1/event/';
 
-const getEventFormat = (data: { events: any[]; }) => {
+const getEventFormat = (data: ConnpassResponse) => {
   return data.events.map(item => {
     return {
       title: `${item.title} (${item.limit})`,
@@ -37,12 +72,8 @@ const getEventFormat = (data: { events: any[]; }) => {
 }
 
 const setCalendarEvents = (startStr: any, callback: any) => {
-  let events: any[] = [];
-  let dt = new Date(startStr);
-  
-  dt.setDate(dt.getDate() + 7);
-
-  const ym = dt.getFullYear() + ("00" + (dt.getMonth()+1)).slice(-2);
+  let events: CalendarEvent[] = [];
+  const ym: string = dayjs(startStr).add(7, 'd').format("YYYYMM");
   const item = sessionStorage.getItem('event' + ym);
   
   if (item !== null) {
@@ -64,14 +95,13 @@ const setCalendarEvents = (startStr: any, callback: any) => {
   }
 
   (async () => {
-      let data = [];
-      let event = [];
-      const results = []; 
-      const PAGING = 100;
-      let maxPage = 10;
-      let pageNo = 0;
+      let data: ConnpassResponse;
+      let event: any[] = [];
+      const results: any[] = []; 
+      const PAGING: number = 100;
+      let maxPage: number = 10;
+      let pageNo: number = 0;
       
-
       const loding: HTMLInputElement =<HTMLInputElement>document.getElementById('loading');
 
       const apiUrl = CONNPASS_API_URL + '?count=' + PAGING + '&ym=' + ym + '&start=' + (pageNo * PAGING + 1);
@@ -100,14 +130,14 @@ const setCalendarEvents = (startStr: any, callback: any) => {
 }
 
 document.addEventListener('DOMContentLoaded', () => {  
-  const calendarEl: HTMLElement = document.getElementById('calendar')!;
-  const calendar = new Calendar(calendarEl, {
+  const calendarEl: HTMLElement = <HTMLInputElement>document.getElementById('calendar')!;
+  const calendar: Calendar = new Calendar(calendarEl, {
     plugins: [ dayGridPlugin, listPlugin ],
     initialView: 'dayGridMonth',
     headerToolbar: {
       left: 'prev,next today',
       center: 'title',
-      right: 'dayGridMonth,listDay'
+      right: 'dayGridMonth, listDay'
     },
     buttonText: {
       today: '今日',
