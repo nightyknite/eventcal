@@ -9,10 +9,10 @@ import tippy from 'tippy.js';
 interface ConnpassResponse {
   results_available: any,
   results_returned: any,
-  events: ConpassEvents[];
+  events: ConnpassEvents[];
 }
 
-interface ConpassEvents {
+interface ConnpassEvents {
   title: string;
   limit: string;
   started_at: string;
@@ -102,7 +102,7 @@ const setCalendarEvents = (startStr: any, callback: any) => {
       let maxPage: number = 10;
       let pageNo: number = 0;
       
-      const loding: HTMLInputElement =<HTMLInputElement>document.getElementById('loading');
+      const loading: HTMLInputElement =<HTMLInputElement>document.getElementById('loading');
 
       const apiUrl = CONNPASS_API_URL + '?count=' + PAGING + '&ym=' + ym + '&start=' + (pageNo * PAGING + 1);
       data = await $.ajax({url: apiUrl, dataType: 'jsonp'});
@@ -110,16 +110,16 @@ const setCalendarEvents = (startStr: any, callback: any) => {
       events = events.concat(event);
       maxPage = Math.ceil(Number(data.results_available) / Number(data.results_returned));
       pageNo += 1;
-      loding.dataset.num = '1';
-      loding.style.width = `${(Number(loding.dataset.num) / maxPage) * 100}%`;
+      loading.dataset.num = '1';
+      loading.style.width = `${(Number(loading.dataset.num) / maxPage) * 100}%`;
       while (pageNo < maxPage) {
         results.push((async () => {
           const apiUrl = CONNPASS_API_URL + '?count=' + PAGING + '&ym=' + ym + '&start=' + (pageNo * PAGING + 1);
           data = await $.ajax({url: apiUrl, dataType: 'jsonp'});
           event = getEventFormat(data);
           events = events.concat(event);
-          loding.dataset.num = `${Number(loding.dataset.num) + 1}`;
-          loding.style.width = `${(Number(loding.dataset.num) / maxPage) * 100}%`;
+          loading.dataset.num = `${Number(loading.dataset.num) + 1}`;
+          loading.style.width = `${(Number(loading.dataset.num) / maxPage) * 100}%`;
         })());
         pageNo += 1;
       }
