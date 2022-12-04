@@ -1,4 +1,4 @@
-import { Calendar } from '@fullcalendar/core';
+import { Calendar, EventClickArg, EventInput, EventMountArg } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import listPlugin from '@fullcalendar/list';
 import * as bootstrap from 'bootstrap';
@@ -71,9 +71,10 @@ const getEventFormat = (data: ConnpassResponse) => {
 });
 }
 
-const setCalendarEvents = (startStr: any, callback: any) => {
+const setCalendarEvents = (start: number, callback: (events: CalendarEvent[]) => void) => {
+  
   let events: CalendarEvent[] = [];
-  const ym: string = dayjs(startStr).add(7, 'd').format("YYYYMM");
+  const ym: string = dayjs(start).add(7, 'd').format("YYYYMM");
   const item = sessionStorage.getItem('event' + ym);
   
   if (item !== null) {
@@ -96,7 +97,7 @@ const setCalendarEvents = (startStr: any, callback: any) => {
 
   (async () => {
       let data: ConnpassResponse;
-      let event: any[] = [];
+      let event: CalendarEvent[] = [];
       const results: any[] = []; 
       const PAGING: number = 100;
       let maxPage: number = 10;
@@ -145,14 +146,14 @@ document.addEventListener('DOMContentLoaded', () => {
       list: 'リスト'
     },
     locale: 'ja',
-    events: (info: any, success: any) => setCalendarEvents(info.start.valueOf(), success),
-    eventClick: (info: any) => {
+    events: (info, success) => setCalendarEvents(info.start.valueOf(), success),
+    eventClick: (info: EventClickArg) => {
       info.jsEvent.preventDefault();
       if (info.event.url) {
         window.open(info.event.url);
       }
     },
-    eventDidMount: (e: any) => {
+    eventDidMount: (e: EventMountArg) => {
       tippy(e.el, {
         content: `tite:${e.event.title} <br> ${e.event.extendedProps.description}`,
         allowHTML: true,
