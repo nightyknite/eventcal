@@ -89,7 +89,7 @@ const setCalendarEvents = (start: number, callback: (events: CalendarEvent[]) =>
     }
     const keyword: HTMLInputElement =<HTMLInputElement>document.getElementById('keyword');
     if (keyword!.value.length > 0) {
-      events = events.filter(event => {return (event.description.indexOf(keyword!.value) > 0);});
+      events = events.filter(event => {return ((event.description.indexOf(keyword!.value) >= 0) || (event.title.indexOf(keyword!.value) >= 0));});
     }
     callback(events);
     return;  
