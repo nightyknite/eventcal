@@ -4,9 +4,12 @@ module.exports = {
   root: './',
   base: './',
   build: {
-    sourcemap: 'inline'
+    sourcemap: 'true'
   },
   plugins: [
     vue()
   ],
+  css: {
+    devSourcemap: true,
+  },
 }

@@ -58,60 +58,64 @@ export const getEventFormat = (data: ApiResponse) => {
   });
 }
 
-export const getApiEvents = (startDay: Date): EventInput[] => {
-  
+export const searchApiEvents = (startDay: Date, cal:any): EventInput[] => {
   let events: EventInput[] = [];
   const ym: string = dayjs(startDay).add(7, 'd').format("YYYYMM");
   const item = sessionStorage.getItem('event' + ym);
-  
   if (item !== null) {
     events = JSON.parse(item);
-    const start: HTMLInputElement =<HTMLInputElement>document.getElementById('start');
-    if (start!.value.length > 0) {
-      events = events.filter(event => {return (dayjs(<string>event.start).format("HH:mm") >= start!.value);});
+    const start = cal.start;
+    if (start.length > 0) {
+      events = events.filter(event => {return (dayjs(<string>event.start).format("HH:mm") >= start);});
     }
-    const limit: HTMLInputElement =<HTMLInputElement>document.getElementById('limit');
-    if (limit!.value.length > 0) {
-      events = events.filter(event => {return (Number(event.limit) >= Number(limit!.value));});
+    const limit = cal.limit;
+    if (limit.length > 0) {
+      events = events.filter(event => {return (Number(event.limit) >= Number(limit));});
     }
-    const keyword: HTMLInputElement =<HTMLInputElement>document.getElementById('keyword');
-    if (keyword!.value.length > 0) {
-      events = events.filter(event => {return ((event.description.indexOf(keyword!.value) >= 0) || (event.title!.indexOf(keyword!.value) >= 0));});
+    const keyword = cal.keyword;
+    if (keyword.length > 0) {
+      events = events.filter(event => {return ((event.description.indexOf(keyword) >= 0) || (event.title!.indexOf(keyword) >= 0));});
     }
     return events;
   }
+  return events;
+}
+export const loadApiEvents = async (startDay: Date, cal:any) => {
 
-  (async () => {
-      let data: ApiResponse;
-      let event: EventInput[] = [];
-      const results: any[] = []; 
-      const PAGING: number = 100;
-      let maxPage: number = 10;
-      let pageNo: number = 0;
-      
-      const loading: HTMLInputElement =<HTMLInputElement>document.getElementById('loading');
+  let events: any[] = [];
+  const ym: string = dayjs(startDay).add(7, 'd').format("YYYYMM");
 
+  let data: ApiResponse;
+  let event: EventInput[] = [];
+  const results: any[] = []; 
+  const PAGING: number = 100;
+  let maxPage: number = 10;
+  let pageNo: number = 0;
+
+  const item = sessionStorage.getItem('event' + ym);
+  if (item !== null) {
+    return searchApiEvents(startDay, cal);
+  }
+
+  const apiUrl = API_URL + '?count=' + PAGING + '&ym=' + ym + '&start=' + (pageNo * PAGING + 1);
+  data = await $.ajax({url: apiUrl, dataType: 'jsonp'});
+  event = getEventFormat(data);
+  events = events.concat(event);
+  maxPage = Math.ceil(Number(data.results_available) / Number(data.results_returned));
+  cal.progressMaxValue = maxPage;
+  pageNo += 1;
+  cal.progressValue = 1;
+  while (pageNo < maxPage) {
+    results.push((async () => {
       const apiUrl = API_URL + '?count=' + PAGING + '&ym=' + ym + '&start=' + (pageNo * PAGING + 1);
       data = await $.ajax({url: apiUrl, dataType: 'jsonp'});
       event = getEventFormat(data);
       events = events.concat(event);
-      maxPage = Math.ceil(Number(data.results_available) / Number(data.results_returned));
-      pageNo += 1;
-      loading.dataset.num = '1';
-      loading.style.width = `${(Number(loading.dataset.num) / maxPage) * 100}%`;
-      while (pageNo < maxPage) {
-        results.push((async () => {
-          const apiUrl = API_URL + '?count=' + PAGING + '&ym=' + ym + '&start=' + (pageNo * PAGING + 1);
-          data = await $.ajax({url: apiUrl, dataType: 'jsonp'});
-          event = getEventFormat(data);
-          events = events.concat(event);
-          loading.dataset.num = `${Number(loading.dataset.num) + 1}`;
-          loading.style.width = `${(Number(loading.dataset.num) / maxPage) * 100}%`;
-        })());
-        pageNo += 1;
-      }
-      await Promise.all(results);
-      sessionStorage.setItem('event' + ym, JSON.stringify(events));
-  })();
-  return events;
+      cal.progressValue = cal.progressValue + 1;
+    })());
+    pageNo += 1;
+  }
+  await Promise.all(results);
+  sessionStorage.setItem('event' + ym, JSON.stringify(events));
+  return events;  
 }

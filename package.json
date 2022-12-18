@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "license": "ISC",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --open",
     "build": "vite build",
     "preview": "vite preview",
     "clean": "rm -rf dist"
@@ -12,20 +12,13 @@
   "dependencies": {
     "@fullcalendar/core": "^5.11.2",
     "@fullcalendar/daygrid": "^5.11.2",
-    "@fullcalendar/interaction": "^5.11.2",
     "@fullcalendar/list": "^5.11.3",
-    "@fullcalendar/timegrid": "^5.11.2",
     "@fullcalendar/vue3": "^5.11.2",
-    "@popperjs/core": "^2.11.6",
-    "bootstrap": "^5.2.3",
-    "bootstrap-vue": "^2.23.1",
     "bootstrap-vue-3": "^0.4.15",
     "dayjs": "^1.11.6",
     "jquery": "^3.6.1",
     "tippy.js": "^6.3.7",
-    "vue": "^3.0.11",
-    "vue3-popper": "^1.5.0",
-    "vuetify": "^3.0.5"
+    "vue": "^3.0.11"
   },
   "devDependencies": {
     "@types/bootstrap": "^5.2.6",
