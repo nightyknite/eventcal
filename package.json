@@ -1,33 +1,43 @@
 {
+  "private": true,
   "name": "eventcal",
-  "version": "1.0.0",
-  "description": "",
-  "scripts": {
-    "dev": "npx parcel src/index.html --open",
-    "build": "npx parcel build src/index.html --public-url ./"
-  },
-  "keywords": [],
-  "author": "",
+  "version": "0.0.0",
   "license": "ISC",
-  "devDependencies": {
-    "@parcel/transformer-sass": "^2.8.0",
-    "@types/bootstrap": "^5.2.6",
-    "@types/jquery": "^3.5.14",
-    "parcel": "^2.8.0"
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "clean": "rm -rf dist"
   },
   "dependencies": {
-    "@fullcalendar/core": "^5.11.3",
-    "@fullcalendar/daygrid": "^5.11.3",
+    "@fullcalendar/core": "^5.11.2",
+    "@fullcalendar/daygrid": "^5.11.2",
+    "@fullcalendar/interaction": "^5.11.2",
     "@fullcalendar/list": "^5.11.3",
-    "@fullcalendar/timegrid": "^5.11.3",
+    "@fullcalendar/timegrid": "^5.11.2",
+    "@fullcalendar/vue3": "^5.11.2",
     "@popperjs/core": "^2.11.6",
-    "bootstrap": "^5.2.2",
-    "bootstrap-css": "^4.0.0-alpha.5",
-    "bootstrap-scss": "^5.2.2",
+    "bootstrap": "^5.2.3",
+    "bootstrap-vue": "^2.23.1",
+    "bootstrap-vue-3": "^0.4.15",
     "dayjs": "^1.11.6",
-    "fullcalendar": "^5.11.3",
     "jquery": "^3.6.1",
-    "tippy.js": "^6.3.7"
+    "tippy.js": "^6.3.7",
+    "vue": "^3.0.11",
+    "vue3-popper": "^1.5.0",
+    "vuetify": "^3.0.5"
+  },
+  "devDependencies": {
+    "@types/bootstrap": "^5.2.6",
+    "@types/jquery": "^3.5.14",
+    "@vitejs/plugin-vue": "^1.2.2",
+    "@vue/compiler-sfc": "^3.0.11",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-plugin-prettier": "^4.2.1",
+    "prettier": "^2.8.1",
+    "typescript": "^4.2.4",
+    "unplugin-vue-components": "^0.22.12",
+    "vite": "^2.3.2"
   },
   "volta": {
     "node": "18.12.1"
