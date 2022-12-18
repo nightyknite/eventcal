@@ -1,10 +1,10 @@
 <script lang='ts'>
-import { defineComponent, ref } from 'vue'
+import { defineComponent} from 'vue'
 import '@fullcalendar/core/vdom'
 import FullCalendar, { CalendarOptions, EventApi, EventClickArg, CalendarApi, EventMountArg } from '@fullcalendar/vue3'
 import dayGridPlugin from '@fullcalendar/daygrid'
 import listPlugin from '@fullcalendar/list';
-import { searchApiEvents, loadApiEvents } from './event-utils'
+import { loadApiEvents } from './event-utils'
 import tippy from 'tippy.js'
 import 'tippy.js/dist/tippy.css'
 

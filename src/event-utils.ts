@@ -2,9 +2,6 @@ import { EventInput } from '@fullcalendar/vue3'
 import dayjs from 'dayjs';
 import $ from 'jquery';
 
-let eventGuid = 0
-let todayStr = new Date().toISOString().replace(/T.*$/, '') // YYYY-MM-DD of today
-
 export interface ApiResponse {
   results_available: any,
   results_returned: any,
@@ -27,9 +24,9 @@ export interface ApiEvents {
   description: string;
 }
 
-export const API_URL = 'https://connpass.com/api/v1/event/';
+const API_URL = 'https://connpass.com/api/v1/event/';
 
-export const getEventFormat = (data: ApiResponse) => {
+const getEventFormat = (data: ApiResponse) => {
   return data.events.map(item => {
     return {
       title: `${item.title} (${item.limit})`,
@@ -58,12 +55,7 @@ export const getEventFormat = (data: ApiResponse) => {
   });
 }
 
-export const searchApiEvents = (startDay: Date, cal:any): EventInput[] => {
-  let events: EventInput[] = [];
-  const ym: string = dayjs(startDay).add(7, 'd').format("YYYYMM");
-  const item = sessionStorage.getItem('event' + ym);
-  if (item !== null) {
-    events = JSON.parse(item);
+const searchApiEvents = (events: EventInput[], cal:any): EventInput[] => {
     const start = cal.start;
     if (start.length > 0) {
       events = events.filter(event => {return (dayjs(<string>event.start).format("HH:mm") >= start);});
@@ -74,48 +66,53 @@ export const searchApiEvents = (startDay: Date, cal:any): EventInput[] => {
     }
     const keyword = cal.keyword;
     if (keyword.length > 0) {
-      events = events.filter(event => {return ((event.description.indexOf(keyword) >= 0) || (event.title!.indexOf(keyword) >= 0));});
+      events = events.filter(
+        event => {
+          ((event.description.indexOf(keyword) >= 0) || (event.title!.indexOf(keyword) >= 0))
+      });
     }
     return events;
-  }
-  return events;
 }
-export const loadApiEvents = async (startDay: Date, cal:any) => {
 
-  let events: any[] = [];
+const getApiEvent = async (ym:string, pageNo:number):Promise<ApiResponse> => {
+  const PAGING: number = 100;
+  const apiUrl = API_URL + '?count=' + PAGING + '&ym=' + ym + '&start=' + (pageNo * PAGING + 1);
+  const data: ApiResponse = await $.ajax({url: apiUrl, dataType: 'jsonp'});
+  return data;
+}
+export const loadApiEvents = async (startDay: Date, cal:any):Promise<EventInput[]> => {
+
   const ym: string = dayjs(startDay).add(7, 'd').format("YYYYMM");
 
   let data: ApiResponse;
   let event: EventInput[] = [];
-  const results: any[] = []; 
-  const PAGING: number = 100;
-  let maxPage: number = 10;
+  let events: EventInput[] = [];
+  const promises: any[] = []; 
   let pageNo: number = 0;
 
   const item = sessionStorage.getItem('event' + ym);
   if (item !== null) {
-    return searchApiEvents(startDay, cal);
+    events = JSON.parse(item);
+    return searchApiEvents(events, cal);
   }
 
-  const apiUrl = API_URL + '?count=' + PAGING + '&ym=' + ym + '&start=' + (pageNo * PAGING + 1);
-  data = await $.ajax({url: apiUrl, dataType: 'jsonp'});
+  data = await getApiEvent(ym, pageNo);
   event = getEventFormat(data);
   events = events.concat(event);
-  maxPage = Math.ceil(Number(data.results_available) / Number(data.results_returned));
+  const maxPage: number = Math.ceil(Number(data.results_available) / Number(data.results_returned));
   cal.progressMaxValue = maxPage;
   pageNo += 1;
   cal.progressValue = 1;
   while (pageNo < maxPage) {
-    results.push((async () => {
-      const apiUrl = API_URL + '?count=' + PAGING + '&ym=' + ym + '&start=' + (pageNo * PAGING + 1);
-      data = await $.ajax({url: apiUrl, dataType: 'jsonp'});
+    promises.push((async () => {
+      data = await getApiEvent(ym, pageNo);
       event = getEventFormat(data);
       events = events.concat(event);
       cal.progressValue = cal.progressValue + 1;
     })());
     pageNo += 1;
   }
-  await Promise.all(results);
+  await Promise.all(promises);
   sessionStorage.setItem('event' + ym, JSON.stringify(events));
   return events;  
 }
